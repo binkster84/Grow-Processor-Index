@@ -27,13 +27,10 @@ h1 {
     font-size: 22px;
 }
 
-.search-wrapper {
-    margin-top: 10px;
-}
-
 input {
     width: 100%;
     padding: 12px;
+    margin-top: 10px;
     font-size: 16px;
     border-radius: 10px;
     border: none;
@@ -102,20 +99,6 @@ input {
 .text { background: #5ac8fa; color: white; }
 .link { background: #007aff; color: white; }
 .disabled { background: #ddd; color: #999; }
-
-#loadMore {
-    text-align: center;
-    padding: 20px;
-}
-
-button {
-    padding: 10px 18px;
-    border-radius: 20px;
-    border: 1px solid #007aff;
-    background: white;
-    color: #007aff;
-    font-weight: 600;
-}
 </style>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -126,29 +109,23 @@ button {
 <div class="header">
     <h1>OBN Manufacturers</h1>
 
-    <div class="search-wrapper">
-        <input id="search" placeholder="Search name, city, OBN, phone..." />
-    </div>
+    <input id="search" placeholder="Search name, DBA, city, OBN, phone..." />
 
     <div class="meta">
         <span id="count">Loading...</span>
-        <span>Live Sheet Mode</span>
+        <span>Live Google Sheet</span>
     </div>
 </div>
 
 <div class="container" id="list"></div>
 
-<div id="loadMore">
-    <button onclick="loadMore()">Load More</button>
-</div>
-
 <script>
+
 const SHEET_URL =
 "https://docs.google.com/spreadsheets/d/e/2PACX-1vR1Tk13j5J_QS_MSIFetJ5iuKZaMUwIyF3xbIzztdlyivLrYSxgH2Rtshv-lHShaw/pub?output=csv";
 
 let data = [];
 let filtered = [];
-let limit = 50;
 
 function normalize(row) {
     const keys = {};
@@ -157,51 +134,63 @@ function normalize(row) {
     });
 
     return {
-        name: keys["name"] || keys["company name"] || "",
-        dba: keys["dba"] || "",
-        city: keys["city"] || "",
-        obn: keys["obn"] || keys["obn #"] || "",
-        phone: keys["phone"] || keys["phone number"] || "",
-        link: keys["link"] || keys["website"] || "",
-        phone_digits: (keys["phone"] || "").replace(/\D/g, "")
+        obn: keys["obn #"] || "",
+        name: keys["registered name"] || "",
+        dba: keys["dba name"] || "",
+        city: keys["business address city"] || "",
+        state: keys["business address state"] || "",
+        phone: keys["phone #"] || "",
+        phone_digits: (keys["phone #"] || "").replace(/\D/g, ""),
+        link: keys["obn link"] || ""
     };
 }
 
 function render() {
-    const show = filtered.slice(0, limit);
     const list = document.getElementById("list");
 
     document.getElementById("count").innerText =
-        `Showing ${show.length} of ${filtered.length}`;
+        `Showing ${filtered.length} records`;
 
-    if (!show.length) {
+    if (!filtered.length) {
         list.innerHTML = "<div style='padding:20px'>No results found</div>";
         return;
     }
 
-    list.innerHTML = show.map(i => `
+    list.innerHTML = filtered.map(i => `
         <div class="card">
+
             <div class="title">
-                <div>${i.name || "-"}</div>
+                <div>${i.name || "Unknown"}</div>
                 <div class="badge">#${i.obn || "-"}</div>
             </div>
 
-            <div class="small">DBA: ${i.dba || "-"}</div>
-            <div class="small">City: ${i.city || "-"}</div>
-            <div class="small">Phone: ${i.phone || "-"}</div>
+            <div class="small"><b>DBA:</b> ${i.dba || "-"}</div>
+            <div class="small"><b>City:</b> ${i.city || "-"}, ${i.state || ""}</div>
+            <div class="small"><b>Phone:</b> ${i.phone || "-"}</div>
 
             <div class="actions">
+
                 ${i.link
-                    ? `<a class="btn link" href="${i.link}" target="_blank">Link</a>`
-                    : `<div class="btn disabled">Link</div>`}
+                    ? `<a class="btn link" href="${i.link}" target="_blank" rel="noopener">
+                        🌐 OBN
+                       </a>`
+                    : `<div class="btn disabled">🌐 OBN</div>`
+                }
 
                 ${i.phone_digits
-                    ? `<a class="btn call" href="tel:${i.phone_digits}">Call</a>`
-                    : `<div class="btn disabled">Call</div>`}
+                    ? `<a class="btn call" href="tel:${i.phone_digits}">
+                        📞 Call
+                       </a>`
+                    : `<div class="btn disabled">📞 Call</div>`
+                }
 
                 ${i.phone_digits
-                    ? `<a class="btn text" href="sms:${i.phone_digits}">Text</a>`
-                    : `<div class="btn disabled">Text</div>`}
+                    ? `<a class="btn text" href="sms:${i.phone_digits}">
+                        💬 Text
+                       </a>`
+                    : `<div class="btn disabled">💬 Text</div>`
+                }
+
             </div>
         </div>
     `).join("");
@@ -218,12 +207,6 @@ function filter(q) {
         (i.phone || "").toLowerCase().includes(q)
     );
 
-    limit = 50;
-    render();
-}
-
-function loadMore() {
-    limit += 50;
     render();
 }
 
@@ -245,8 +228,8 @@ function loadData() {
 }
 
 loadData();
+
 </script>
 
 </body>
-</html>
 </html>
