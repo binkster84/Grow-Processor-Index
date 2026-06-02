@@ -1,124 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>OBN Manufacturers Index</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 0; padding: 0; background-color: #f2f2f7; color: #1c1c1e; -webkit-font-smoothing: antialiased; }
-        .header { background-color: #ffffff; padding: 20px 16px 12px 16px; border-bottom: 1px solid #c6c6c8; position: sticky; top: 0; z-index: 100; }
-        h1 { font-size: 24px; font-weight: 700; margin: 0 0 12px 0; color: #000000; letter-spacing: -0.5px; }
-        .search-wrapper { position: relative; margin-bottom: 8px; }
-        input[type="text"] { width: 100%; padding: 12px 12px 12px 38px; font-size: 16px; border: none; background-color: #e3e3e8; border-radius: 10px; box-sizing: border-box; outline: none; -webkit-appearance: none; }
-        .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #8e8e93; font-size: 16px; pointer-events: none; }
-        .meta-info { font-size: 13px; color: #8e8e93; margin-top: 8px; display: flex; justify-content: space-between; }
-        .list-container { padding: 12px 16px; }
-        .card { background-color: #ffffff; border-radius: 12px; padding: 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.04); border: 1px solid #e5e5ea; }
-        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 8px; }
-        .company-name { font-size: 18px; font-weight: 600; color: #1c1c1e; word-break: break-word; line-height: 1.3; }
-        .obn-badge { background-color: #e1f5fe; color: #0288d1; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; white-space: nowrap; }
-        .dba-name { font-size: 14px; color: #3a3a3c; font-style: italic; margin-top: -4px; margin-bottom: 10px; word-break: break-word; }
-        .detail-row { font-size: 14px; margin-bottom: 6px; color: #2c2c2e; display: flex; }
-        .label { color: #8e8e93; font-weight: 500; width: 55px; flex-shrink: 0; }
-        .value { word-break: break-word; }
-        .actions { display: flex; gap: 8px; margin-top: 14px; border-top: 1px solid #f2f2f7; padding-top: 12px; }
-        .btn { flex: 1; text-align: center; padding: 11px; font-size: 14px; font-weight: 600; text-decoration: none; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; gap: 4px; }
-        .btn-link { background-color: #007aff; color: #ffffff; }
-        .btn-call { background-color: #34c759; color: #ffffff; }
-        .btn-text { background-color: #5ac8fa; color: #ffffff; }
-        .btn-disabled { background-color: #e5e5ea; color: #aeaeae; pointer-events: none; }
-        .no-results { text-align: center; color: #8e8e93; margin-top: 40px; font-size: 16px; }
-        .load-more { text-align: center; margin: 16px 0 32px 0; }
-        .btn-load { background-color: #ffffff; color: #007aff; border: 1px solid #007aff; padding: 12px 24px; border-radius: 22px; font-size: 15px; font-weight: 600; display: inline-block; cursor: pointer; }
-    </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>OBN Manufacturers Index</title>
+
+<style>
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    background: #f2f2f7;
+    color: #1c1c1e;
+}
+
+.header {
+    position: sticky;
+    top: 0;
+    background: white;
+    padding: 16px;
+    border-bottom: 1px solid #ddd;
+    z-index: 10;
+}
+
+h1 {
+    margin: 0;
+    font-size: 22px;
+}
+
+.search-wrapper {
+    margin-top: 10px;
+    position: relative;
+}
+
+input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border-radius: 10px;
+    border: none;
+    background: #e5e5ea;
+    outline: none;
+}
+
+.meta {
+    font-size: 12px;
+    color: gray;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    padding: 12px;
+}
+
+.card {
+    background: white;
+    padding: 14px;
+    margin-bottom: 10px;
+    border-radius: 12px;
+    border: 1px solid #e5e5ea;
+}
+
+.title {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.badge {
+    font-size: 12px;
+    background: #e1f5fe;
+    padding: 4px 8px;
+    border-radius: 6px;
+    color: #0288d1;
+}
+
+.small {
+    font-size: 13px;
+    color: #444;
+    margin-top: 4px;
+}
+
+.actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.btn {
+    flex: 1;
+    padding: 10px;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.call { background: #34c759; color: white; }
+.text { background: #5ac8fa; color: white; }
+.link { background: #007aff; color: white; }
+.disabled { background: #ddd; color: #999; }
+
+#sidebar {
+    position: fixed;
+    right: 6px;
+    top: 120px;
+    font-size: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    color: #007aff;
+    user-select: none;
+}
+
+#loadMore {
+    text-align: center;
+    padding: 20px;
+}
+
+button {
+    padding: 10px 18px;
+    border-radius: 20px;
+    border: 1px solid #007aff;
+    background: white;
+    color: #007aff;
+    font-weight: 600;
+}
+
+.highlight {
+    background: yellow;
+}
+</style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
 </head>
+
 <body>
-    <div class="header">
-        <h1>OBN Manufacturers</h1>
-        <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
-            <input type="text" id="searchInput" placeholder="Search by city, name, or number..." oninput="handleSearch()">
-        </div>
-        <div class="meta-info">
-            <span id="matchCount">Showing 0 of 0 records</span>
-            <span>iOS Fast-Load Mode</span>
-        </div>
+
+<div class="header">
+    <h1>OBN Manufacturers</h1>
+
+    <div class="search-wrapper">
+        <input id="search" placeholder="Search name, city, OBN, phone..." />
     </div>
-    <div class="list-container" id="listContainer"></div>
-    <div class="load-more" id="loadMoreContainer" style="display: none;">
-        <div class="btn-load" onclick="loadMore()">Load More Results</div>
+
+    <div class="meta">
+        <span id="count">Loading...</span>
+        <span>Premium Mode</span>
     </div>
-    <script>
-        const data = [
-// ... Paste data array objects sequentially here ...
-        ];
+</div>
 
-        let filteredData = [...data];
-        let displayLimit = 50;
+<div id="sidebar"></div>
+<div class="container" id="list"></div>
 
-        function renderList() {
-            const container = document.getElementById('listContainer');
-            const loadMoreContainer = document.getElementById('loadMoreContainer');
-            
-            loadMoreContainer.style.display = (displayLimit >= filteredData.length) ? 'none' : 'block';
-            const itemsToRender = filteredData.slice(0, displayLimit);
-            
-            if (itemsToRender.length === 0) {
-                container.innerHTML = '<div class="no-results">No matches found.</div>';
-                document.getElementById('matchCount').innerText = `Showing 0 of 0 records`;
-                return;
-            }
+<div id="loadMore">
+    <button onclick="loadMore()">Load More</button>
+</div>
 
-            document.getElementById('matchCount').innerText = `Showing ${itemsToRender.length} of ${filteredData.length} records`;
+<script>
+const SHEET_URL =
+"https://docs.google.com/spreadsheets/d/e/2PACX-1vR1Tk13j5J_QS_MSIFetJ5iuKZaMUwIyF3xbIzztdlyivLrYSxgH2Rtshv-lHShaw/pub?output=csv";
 
-            let html = '';
-            itemsToRender.forEach(item => {
-                const dbaHtml = item.dba ? `<div class="dba-name">DBA: ${escapeHtml(item.dba)}</div>` : '';
-                const linkButton = item.link ? `<a href="${escapeHtml(item.link)}" target="_blank" class="btn btn-link">🌐 Link</a>` : `<a class="btn btn-disabled">🌐 Link</a>`;
-                const callButton = item.phone_digits ? `<a href="tel:${item.phone_digits}" class="btn btn-call">📞 Call</a>` : `<a class="btn btn-disabled">📞 Call</a>`;
-                const textButton = item.phone_digits ? `<a href="sms:${item.phone_digits}" class="btn btn-text">💬 Text</a>` : `<a class="btn btn-disabled">💬 Text</a>`;
+let data = [];
+let filtered = [];
+let limit = 50;
 
-                html += `
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="company-name">${escapeHtml(item.name || 'Unknown Name')}</div>
-                            <div class="obn-badge">#${escapeHtml(item.obn)}</div>
-                        </div>
-                        ${dbaHtml}
-                        <div class="detail-row"><span class="label">City:</span><span class="value">${escapeHtml(item.city || 'N/A')}</span></div>
-                        <div class="detail-row"><span class="label">Phone:</span><span class="value">${escapeHtml(item.phone || 'N/A')}</span></div>
-                        <div class="actions">
-                            ${linkButton}
-                            ${callButton}
-                            ${textButton}
-                        </div>
-                    </div>`;
-            });
-            container.innerHTML = html;
+function cacheSave() {
+    localStorage.setItem("obn_cache", JSON.stringify(data));
+}
+
+function cacheLoad() {
+    try {
+        return JSON.parse(localStorage.getItem("obn_cache"));
+    } catch {
+        return null;
+    }
+}
+
+function highlight(text, q) {
+    if (!q) return text;
+    return text.replace(new RegExp(q, "gi"), m => `<span class="highlight">${m}</span>`);
+}
+
+function render() {
+    const q = document.getElementById("search").value.toLowerCase();
+
+    const list = document.getElementById("list");
+    const show = filtered.slice(0, limit);
+
+    document.getElementById("count").innerText =
+        `Showing ${show.length} of ${filtered.length}`;
+
+    list.innerHTML = show.map(i => `
+        <div class="card">
+            <div class="title">
+                <div>${highlight(i.name || "", q)}</div>
+                <div class="badge">#${i.obn || ""}</div>
+            </div>
+
+            <div class="small">DBA: ${i.dba || "-"}</div>
+            <div class="small">City: ${i.city || "-"}</div>
+            <div class="small">Phone: ${i.phone || "-"}</div>
+
+            <div class="actions">
+                ${i.link ? `<a class="btn link" href="${i.link}" target="_blank">Link</a>` :
+                `<div class="btn disabled">Link</div>`}
+
+                ${i.phone_digits ? `<a class="btn call" href="tel:${i.phone_digits}">Call</a>` :
+                `<div class="btn disabled">Call</div>`}
+
+                ${i.phone_digits ? `<a class="btn text" href="sms:${i.phone_digits}">Text</a>` :
+                `<div class="btn disabled">Text</div>`}
+            </div>
+        </div>
+    `).join("");
+}
+
+function filter(q) {
+    filtered = data.filter(i =>
+        (i.name||"").toLowerCase().includes(q) ||
+        (i.dba||"").toLowerCase().includes(q) ||
+        (i.city||"").toLowerCase().includes(q) ||
+        (i.obn||"").toLowerCase().includes(q) ||
+        (i.phone||"").toLowerCase().includes(q)
+    );
+    limit = 50;
+    render();
+}
+
+function loadMore() {
+    limit += 50;
+    render();
+}
+
+function buildSidebar() {
+    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    document.getElementById("sidebar").innerHTML =
+        letters.map(l => `<div onclick="jump('${l}')">${l}</div>`).join("");
+}
+
+function jump(letter) {
+    const idx = filtered.findIndex(i =>
+        (i.name || "").toUpperCase().startsWith(letter)
+    );
+    if (idx >= 0) {
+        limit = idx + 20;
+        render();
+        window.scrollTo(0, 0);
+    }
+}
+
+function loadData() {
+    const cached = cacheLoad();
+
+    if (cached) {
+        data = cached;
+        filtered = data;
+        render();
+        buildSidebar();
+        return;
+    }
+
+    Papa.parse(SHEET_URL, {
+        download: true,
+        header: true,
+        complete: (res) => {
+            data = res.data.map(r => ({
+                name: r.name || r.Name,
+                dba: r.dba || r.DBA,
+                city: r.city || r.City,
+                obn: r.obn || r.OBN,
+                phone: r.phone || r.Phone,
+                phone_digits: (r.phone || "").replace(/\D/g,''),
+                link: r.link || r.Link
+            }));
+
+            filtered = data;
+            cacheSave();
+            render();
+            buildSidebar();
         }
+    });
+}
 
-        function handleSearch() {
-            const query = document.getElementById('searchInput').value.toLowerCase().trim();
-            if (!query) {
-                filteredData = [...data];
-            } else {
-                filteredData = data.filter(item => 
-                    item.name.toLowerCase().includes(query) ||
-                    item.dba.toLowerCase().includes(query) ||
-                    item.city.toLowerCase().includes(query) ||
-                    item.obn.toLowerCase().includes(query) ||
-                    item.phone.toLowerCase().includes(query)
-                );
-            }
-            displayLimit = 50;
-            renderList();
-        }
+let timeout;
+document.getElementById("search").addEventListener("input", (e) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+        filter(e.target.value.toLowerCase());
+    }, 120);
+});
 
-        function loadMore() { displayLimit += 50; renderList(); }
-        function escapeHtml(str) {
-            return str ? str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") : '';
-        }
-        window.onload = function() { renderList(); };
-    </script>
+loadData();
+</script>
+
 </body>
 </html>
