@@ -29,12 +29,11 @@ h1 {
 
 .search-wrapper {
     margin-top: 10px;
-    position: relative;
 }
 
 input {
     width: 100%;
-    padding: 12px 14px;
+    padding: 12px;
     font-size: 16px;
     border-radius: 10px;
     border: none;
@@ -104,18 +103,6 @@ input {
 .link { background: #007aff; color: white; }
 .disabled { background: #ddd; color: #999; }
 
-#sidebar {
-    position: fixed;
-    right: 6px;
-    top: 120px;
-    font-size: 11px;
-    display: flex;
-    flex-direction: column;
-    gap: 3px;
-    color: #007aff;
-    user-select: none;
-}
-
 #loadMore {
     text-align: center;
     padding: 20px;
@@ -128,10 +115,6 @@ button {
     background: white;
     color: #007aff;
     font-weight: 600;
-}
-
-.highlight {
-    background: yellow;
 }
 </style>
 
@@ -149,11 +132,10 @@ button {
 
     <div class="meta">
         <span id="count">Loading...</span>
-        <span>Premium Mode</span>
+        <span>Live Sheet Mode</span>
     </div>
 </div>
 
-<div id="sidebar"></div>
 <div class="container" id="list"></div>
 
 <div id="loadMore">
@@ -168,37 +150,40 @@ let data = [];
 let filtered = [];
 let limit = 50;
 
-function cacheSave() {
-    localStorage.setItem("obn_cache", JSON.stringify(data));
-}
+function normalize(row) {
+    const keys = {};
+    Object.keys(row || {}).forEach(k => {
+        keys[k.toLowerCase().trim()] = row[k];
+    });
 
-function cacheLoad() {
-    try {
-        return JSON.parse(localStorage.getItem("obn_cache"));
-    } catch {
-        return null;
-    }
-}
-
-function highlight(text, q) {
-    if (!q) return text;
-    return text.replace(new RegExp(q, "gi"), m => `<span class="highlight">${m}</span>`);
+    return {
+        name: keys["name"] || keys["company name"] || "",
+        dba: keys["dba"] || "",
+        city: keys["city"] || "",
+        obn: keys["obn"] || keys["obn #"] || "",
+        phone: keys["phone"] || keys["phone number"] || "",
+        link: keys["link"] || keys["website"] || "",
+        phone_digits: (keys["phone"] || "").replace(/\D/g, "")
+    };
 }
 
 function render() {
-    const q = document.getElementById("search").value.toLowerCase();
-
-    const list = document.getElementById("list");
     const show = filtered.slice(0, limit);
+    const list = document.getElementById("list");
 
     document.getElementById("count").innerText =
         `Showing ${show.length} of ${filtered.length}`;
 
+    if (!show.length) {
+        list.innerHTML = "<div style='padding:20px'>No results found</div>";
+        return;
+    }
+
     list.innerHTML = show.map(i => `
         <div class="card">
             <div class="title">
-                <div>${highlight(i.name || "", q)}</div>
-                <div class="badge">#${i.obn || ""}</div>
+                <div>${i.name || "-"}</div>
+                <div class="badge">#${i.obn || "-"}</div>
             </div>
 
             <div class="small">DBA: ${i.dba || "-"}</div>
@@ -206,27 +191,33 @@ function render() {
             <div class="small">Phone: ${i.phone || "-"}</div>
 
             <div class="actions">
-                ${i.link ? `<a class="btn link" href="${i.link}" target="_blank">Link</a>` :
-                `<div class="btn disabled">Link</div>`}
+                ${i.link
+                    ? `<a class="btn link" href="${i.link}" target="_blank">Link</a>`
+                    : `<div class="btn disabled">Link</div>`}
 
-                ${i.phone_digits ? `<a class="btn call" href="tel:${i.phone_digits}">Call</a>` :
-                `<div class="btn disabled">Call</div>`}
+                ${i.phone_digits
+                    ? `<a class="btn call" href="tel:${i.phone_digits}">Call</a>`
+                    : `<div class="btn disabled">Call</div>`}
 
-                ${i.phone_digits ? `<a class="btn text" href="sms:${i.phone_digits}">Text</a>` :
-                `<div class="btn disabled">Text</div>`}
+                ${i.phone_digits
+                    ? `<a class="btn text" href="sms:${i.phone_digits}">Text</a>`
+                    : `<div class="btn disabled">Text</div>`}
             </div>
         </div>
     `).join("");
 }
 
 function filter(q) {
+    q = q.toLowerCase();
+
     filtered = data.filter(i =>
-        (i.name||"").toLowerCase().includes(q) ||
-        (i.dba||"").toLowerCase().includes(q) ||
-        (i.city||"").toLowerCase().includes(q) ||
-        (i.obn||"").toLowerCase().includes(q) ||
-        (i.phone||"").toLowerCase().includes(q)
+        (i.name || "").toLowerCase().includes(q) ||
+        (i.dba || "").toLowerCase().includes(q) ||
+        (i.city || "").toLowerCase().includes(q) ||
+        (i.obn || "").toLowerCase().includes(q) ||
+        (i.phone || "").toLowerCase().includes(q)
     );
+
     limit = 50;
     render();
 }
@@ -236,66 +227,26 @@ function loadMore() {
     render();
 }
 
-function buildSidebar() {
-    const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    document.getElementById("sidebar").innerHTML =
-        letters.map(l => `<div onclick="jump('${l}')">${l}</div>`).join("");
-}
-
-function jump(letter) {
-    const idx = filtered.findIndex(i =>
-        (i.name || "").toUpperCase().startsWith(letter)
-    );
-    if (idx >= 0) {
-        limit = idx + 20;
-        render();
-        window.scrollTo(0, 0);
-    }
-}
+document.getElementById("search").addEventListener("input", e => {
+    filter(e.target.value);
+});
 
 function loadData() {
-    const cached = cacheLoad();
-
-    if (cached) {
-        data = cached;
-        filtered = data;
-        render();
-        buildSidebar();
-        return;
-    }
-
     Papa.parse(SHEET_URL, {
         download: true,
         header: true,
+        skipEmptyLines: true,
         complete: (res) => {
-            data = res.data.map(r => ({
-                name: r.name || r.Name,
-                dba: r.dba || r.DBA,
-                city: r.city || r.City,
-                obn: r.obn || r.OBN,
-                phone: r.phone || r.Phone,
-                phone_digits: (r.phone || "").replace(/\D/g,''),
-                link: r.link || r.Link
-            }));
-
+            data = res.data.map(normalize);
             filtered = data;
-            cacheSave();
             render();
-            buildSidebar();
         }
     });
 }
-
-let timeout;
-document.getElementById("search").addEventListener("input", (e) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-        filter(e.target.value.toLowerCase());
-    }, 120);
-});
 
 loadData();
 </script>
 
 </body>
+</html>
 </html>
